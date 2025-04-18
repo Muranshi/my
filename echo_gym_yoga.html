@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+  <title>休息室 - 回声详情</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #222;
+      color: white;
+      padding: 12px;
+      text-align: center;
+      font-size: 16px;
+    }
+    .section {
+      padding: 16px;
+      max-width: 400px;
+      margin: auto;
+    }
+    .echo {
+      background: #fff;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .echo p {
+      margin: 0 0 6px;
+    }
+    .like {
+      color: #28a745;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .back-button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #555;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      text-align: center;
+      text-decoration: none;
+      width: fit-content;
+    }
+  </style>
+</head>
+<body>
+  <header>🧘 休息室 - 回声详情</header>
+
+  <div class="section">
+    <!-- 用户留言将动态插入在这里 -->
+  </div>
+
+  <a class="back-button" href="index.html">⬅ 返回地图</a>
+
+  <script>
+    const zoneKey = "echo_休息室";
+    const container = document.querySelector(".section");
+
+    const echoList = async function loadEchoList() {
+      const snapshot = await db.collection("echoMessages")
+        .where("zone", "==", "休息区")
+        .orderBy("timestamp", "desc")
+        .get();
+    
+      snapshot.forEach((doc, idx) => {
+        const item = doc.data();
+        const div = document.createElement("div");
+        div.className = "echo";
+        div.innerHTML = `
+          <p>${item.text}</p>
+          <span class="like" onclick="likeEcho('${doc.id}', this, ${item.likes})">❤️ 赞 (${item.likes})</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    loadEchoList();
+    async function likeEcho(docId, el, currentLikes) {
+      await db.collection("echoMessages").doc(docId).update({
+        likes: currentLikes + 1
+      });
+      el.innerText = `❤️ 赞 (${currentLikes + 1})`;
+    }
+    
+  </script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyATBXxDaWTdDN8zVK-wa7PeZ6PUgCNfE7g",
+      authDomain: "echo-gym-49df3.firebaseapp.com",
+      projectId: "echo-gym-49df3",
+      storageBucket: "echo-gym-49df3.firebasestorage.app",
+      messagingSenderId: "1070598827189",
+      appId: "1:1070598827189:web:8cacaa4aa1438bcdbea2fc"
+    };
+  </script>
+</body>
+</html>

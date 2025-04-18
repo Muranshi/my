@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+  <title>发布回声 - 健身房</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #222;
+      color: white;
+      padding: 14px;
+      text-align: center;
+      font-size: 16px;
+    }
+    .section {
+      padding: 16px;
+      max-width: 400px;
+      margin: auto;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .submit-btn {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 16px;
+      margin-top: 16px;
+      border: none;
+      border-radius: 5px;
+      font-size: 15px;
+      width: 100%;
+      cursor: pointer;
+    }
+    .back-link {
+      display: block;
+      margin: 20px auto;
+      text-align: center;
+      color: #666;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>📝 发布你的回声</header>
+
+  <div class="section">
+    <p style="font-size: 15px; margin-bottom: 10px;">你现在在哪个区域？</p>
+    <select id="zone" style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px;">
+      <option value="跑步区">🏃 跑步区</option>
+      <option value="力量区">💪 力量区</option>
+      <option value="休息室">🧘 休息室</option>
+    </select>
+
+    <p style="margin-top: 20px; margin-bottom: 5px; font-size: 15px;">写下你的回声：</p>
+    <textarea id="message" placeholder="分享你的心情、进展或鼓励语..."></textarea>
+
+    <button class="submit-btn" onclick="submitEcho()">提交留言</button>
+
+    <a href="index.html" class="back-link">⬅ 返回地图</a>
+  </div>
+
+  <script>
+    async function submitEcho() {
+      const zone = document.getElementById("zone").value;
+      const msg = document.getElementById("message").value.trim();
+      if (!msg) {
+        alert("请填写留言内容。");
+        return;
+      }
+    
+      await db.collection("echoMessages").add({
+        zone: zone,
+        text: msg,
+        likes: 0,
+        timestamp: new Date()
+      });
+    
+      alert(`你的留言已发布至『${zone}』！`);
+    
+      const redirectMap = {
+        "跑步区": "echo_gym_detail.html",
+        "力量区": "echo_gym_weights.html",
+        "休息室": "echo_gym_yoga.html"
+      };
+      window.location.href = redirectMap[zone];
+    }
+  </script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyATBXxDaWTdDN8zVK-wa7PeZ6PUgCNfE7g",
+      authDomain: "echo-gym-49df3.firebaseapp.com",
+      projectId: "echo-gym-49df3",
+      storageBucket: "echo-gym-49df3.firebasestorage.app",
+      messagingSenderId: "1070598827189",
+      appId: "1:1070598827189:web:8cacaa4aa1438bcdbea2fc"
+    };
+  </script>
+</body>
+</html>
