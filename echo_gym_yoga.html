@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Echo Point 健身房 - 休息室</title>
+  <!-- 引入 Firebase SDK（如果已在其他页面引入且全站通用，可省略） -->
+  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore-compat.js"></script>
+</head>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    background-color: #222;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-size: 16px;
+  }
+  #comments-container {
+    padding: 16px;
+    max-width: 400px;
+    margin: auto;
+  }
+  .echo {
+    background: #fff;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .echo p {
+    margin: 0 0 6px;
+  }
+  .like {
+    color: #28a745;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .back-button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #555;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    text-decoration: none;
+    width: fit-content;
+  }
+</style>
+<body>
+  <header>🧘 休息室 - 回声详情</header>
+  <div id="comments-container"></div>
+
+  <a class="back-button" href="index.html">⬅ 返回地图</a>
+
+  <script>
+    // 初始化 Firebase（替换为您的 Firebase 配置，如重复初始化会报错，实际项目可避免重复调用）
+    const firebaseConfig = {
+      apiKey: "AIzaSyATBXxDaWTdDN8zVK-wa7PeZ6PUgCNfE7g",
+      authDomain: "echo-gym-49df3.firebaseapp.com",
+      projectId: "echo-gym-49df3",
+      storageBucket: "echo-gym-49df3.firebasestorage.app",
+      messagingSenderId: "1070598827189",
+      appId: "1:1070598827189:web:8cacaa4aa1438bcdbea2fc"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    const currentArea = "休息室";  // 当前页面区域：休息室
+    
+    function loadMessages() {
+      db.collection("echoMessages")
+        .where("area", "==", currentArea)
+        .orderBy("timestamp", "desc")
+        .get()
+        .then(querySnapshot => {
+          const container = document.getElementById("comments-container");
+          container.innerHTML = "";
+          querySnapshot.forEach(doc => {
+            const data = doc.data();
+            const text = data.text || "";
+            const likes = data.likes || 0;
+            let timeString = "";
+            if (data.timestamp) {
+              let dateObj = (typeof data.timestamp.toDate === "function") 
+                            ? data.timestamp.toDate() 
+                            : new Date(data.timestamp);
+              timeString = dateObj.toLocaleString();
+            }
+            const commentDiv = document.createElement("div");
+            commentDiv.className = "comment";
+            const textP = document.createElement("p");
+            textP.className = "comment-text";
+            textP.textContent = text;
+            const metaP = document.createElement("p");
+            metaP.className = "comment-meta";
+            const timeSpan = document.createElement("span");
+            timeSpan.className = "comment-time";
+            timeSpan.textContent = `时间: ${timeString}`;
+            const likesSpan = document.createElement("span");
+            likesSpan.className = "comment-likes";
+            likesSpan.textContent = `点赞数: ${likes}`;
+            const likeBtn = document.createElement("button");
+            likeBtn.className = "like-btn";
+            likeBtn.textContent = "点赞";
+            metaP.appendChild(timeSpan);
+            metaP.appendChild(document.createTextNode("　"));
+            metaP.appendChild(likesSpan);
+            metaP.appendChild(document.createTextNode(" "));
+            metaP.appendChild(likeBtn);
+            commentDiv.appendChild(textP);
+            commentDiv.appendChild(metaP);
+            container.appendChild(commentDiv);
+            likeBtn.addEventListener("click", () => {
+              likeBtn.disabled = true;
+              const newLikes = likes + 1;
+              likesSpan.textContent = `点赞数: ${newLikes}`;
+              db.collection("echoMessages").doc(doc.id).update({
+                likes: firebase.firestore.FieldValue.increment(1)
+              }).catch(err => {
+                console.error("点赞更新失败:", err);
+              });
+            });
+          });
+        })
+        .catch(error => {
+          console.error("获取留言数据出错:", error);
+        });
+    }
+    
+    document.addEventListener("DOMContentLoaded", loadMessages);
+  </script>
+</body>
+</html>
