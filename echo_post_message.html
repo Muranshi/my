@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+<title>Post Echo - Supermarket</title>
+<style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #222;
+      color: white;
+      padding: 14px;
+      text-align: center;
+      font-size: 16px;
+    }
+    .section {
+      padding: 16px;
+      max-width: 400px;
+      margin: auto;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .submit-btn {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 16px;
+      margin-top: 16px;
+      border: none;
+      border-radius: 5px;
+      font-size: 15px;
+      width: 100%;
+      cursor: pointer;
+    }
+    .back-link {
+      display: block;
+      margin: 20px auto;
+      text-align: center;
+      color: #666;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+<header>📝 Post your Echo </header>
+<div class="section">
+<p style="font-size: 15px; margin-bottom: 10px;">Which supermarket are you in?</p>
+<select id="zone" style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px;">
+<option value="Lidl"> Lidl</option>
+<option value="Aldi"> Aldi</option>
+<option value="Tesco"> Tesco</option>
+<option value="B&M"> B&M</option>
+</select>
+<p style="margin-top: 20px; margin-bottom: 5px; font-size: 15px;">Write your echo:</p>
+<textarea id="message" placeholder="Share your moods, thoughts or feelings..."></textarea>
+<button class="submit-btn" onclick="submitEcho()">Submit</button>
+
+</div>
+<script>
+    async function submitEcho() {
+      const zone = document.getElementById("zone").value;
+      const msg = document.getElementById("message").value.trim();
+      if (!msg) {
+        alert("Please fill in the message content。");
+        return;
+      }
+      
+      await db.collection("echoMessages").add({
+        area: zone,
+        text: msg,
+        likes: 0,
+        timestamp: new Date()
+      });
+      alert(`Your message has been posted to『${zone}』！`);
+      
+      const redirectMap = {
+        "Lidl": "echo_gym_detail.html",
+        "Aldi": "echo_gym_weights.html",
+        "Tesco": "echo_gym_yoga.html",
+        "B&M": "echo_gym_B&M.html",
+      };
+      window.location.href = redirectMap[zone];
+    }
+  </script>
+ 
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyATBXxDaWTdDN8zVK-wa7PeZ6PUgCNfE7g",
+      authDomain: "echo-gym-49df3.firebaseapp.com",
+      projectId: "echo-gym-49df3",
+      storageBucket: "echo-gym-49df3.firebasestorage.app",
+      messagingSenderId: "1070598827189",
+      appId: "1:1070598827189:web:8cacaa4aa1438bcdbea2fc"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+</body>
+</html>
